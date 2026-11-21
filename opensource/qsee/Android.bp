@@ -1,0 +1,71 @@
+// QSEE userspace rebuild (PBEM00, SDM670) - vendor components.
+//
+// Replaces the retired vendor blobs bin/qseecomd and
+// lib64/libQSEEComAPI.so.  See ENABLE-QSEE-REBUILD-7.3.md for the flip
+// record and REPORT.md for the reverse-engineering evidence.
+//
+// Bionic build: pthread/dl live in libc; property_set goes through
+// __system_property_set in libc; capset via syscall(SYS_capset).
+
+cc_library_shared {
+    name: "libQSEEComAPI",
+    vendor: true,
+    srcs: [
+        "qsee_lib/src/qsee_com_api.c",
+        "qsee_lib/src/qsee_dma_heap.c",
+        "qsee_lib/src/qsee_image.c",
+    ],
+    local_include_dirs: [
+        "qsee_lib/include",
+        "qsee_lib/src",
+    ],
+    export_include_dirs: [
+        "qsee_lib/include",
+    ],
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Wno-unused-parameter",
+        "-Wno-error",
+    ],
+}
+
+cc_binary {
+    name: "qseecomd",
+    vendor: true,
+    srcs: [
+        "qseecomd/qseecomd.c",
+        "qseecomd/service_stubs.c",
+    ],
+    local_include_dirs: [
+        "qseecomd",
+        "qsee_lib/include",
+        "qsee_lib/src",
+    ],
+    shared_libs: ["libQSEEComAPI"],
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Wno-unused-parameter",
+        "-Wno-error",
+    ],
+}
+
+cc_binary {
+    name: "qsee_selftest",
+    vendor: true,
+    srcs: [
+        "selftest/qsee_selftest.c",
+    ],
+    local_include_dirs: [
+        "selftest",
+        "qsee_lib/include",
+        "qsee_lib/src",
+    ],
+    cflags: [
+        "-Wall",
+        "-Wextra",
+        "-Wno-unused-parameter",
+        "-Wno-error",
+    ],
+}
